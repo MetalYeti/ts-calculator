@@ -6,7 +6,6 @@ import {
   parseAndEvaluateUnary,
   removeBracket,
   removeAllBrackets,
-  populateBracketsPositions
 } from "./parser";
 
 describe("removeBracketTest", () => {
@@ -37,25 +36,39 @@ describe("removeBracketTest", () => {
 
 describe("Brackets position population", () => {
   it("(2 + 2) * 4", () => {
-    expect(parser("(2 + 2) * 4")).toEqual([[2, "+", 2, "*", 4],[{start: 0, end: 2}]]);
+    expect(parser("(2 + 2) * 4")).toEqual([
+      [2, "+", 2, "*", 4],
+      [{ start: 0, end: 2 }],
+    ]);
   });
 });
 
 describe("Parser correct cases", () => {
   it("1 + 32", () => {
-    expect(parser("1 + 32")).toEqual([[1, "+", 32],[]]);
+    expect(parser("1 + 32")).toEqual([[1, "+", 32], []]);
   });
 
   it("11 + 3 * 22", () => {
-    expect(parser("11 + 3 * 22")).toEqual([[11, "+", 3, "*", 22],[]]);
+    expect(parser("11 + 3 * 22")).toEqual([[11, "+", 3, "*", 22], []]);
   });
 
   it("1 + 32 - 2 + 2", () => {
-    expect(parser("1 + 32 - 2 + 2")).toEqual([[1, "+", 32, "-", 2, "+", 2],[]]);
+    expect(parser("1 + 32 - 2 + 2")).toEqual([
+      [1, "+", 32, "-", 2, "+", 2],
+      [],
+    ]);
   });
 
   it("3 * ((2 + 7) / ((3 + 1) * 2))", () => {
-    expect(parser("3 * ((2 + 7) / ((3 + 1) * 2))")).toEqual([[3, "*", 2, "+", 7, "/", 3, "+", 1, "*", 2],[{start: 2, end: 10}, {start: 2, end: 4}, {start: 6, end: 10}, {start: 6, end: 8}]]);
+    expect(parser("3 * ((2 + 7) / ((3 + 1) * 2))")).toEqual([
+      [3, "*", 2, "+", 7, "/", 3, "+", 1, "*", 2],
+      [
+        { start: 2, end: 10 },
+        { start: 2, end: 4 },
+        { start: 6, end: 10 },
+        { start: 6, end: 8 },
+      ],
+    ]);
   });
 });
 
