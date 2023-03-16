@@ -1,19 +1,49 @@
-import { parser } from "./parser";
+import { parser, BracketsPositions } from "./parser";
 
-import { firstPrioritiesCalc, secondPrioritiesCalc } from "./engine";
+import { priorityChainExecutor } from "./engine";
+
+const recalculateBracketPositions = (
+  brackets: BracketsPositions,
+  bracket: { start: number; end: number }
+): BracketsPositions => {
+  for (const b of brackets) {
+    if (bracket.start >= b.start && bracket.end <= b.end) {
+      b.end -= bracket.end - bracket.start;
+    }
+  }
+  return brackets;
+};
 
 export const runner = (line: string): number => {
-  const stack = parser(line);
+  const parsed = parser(line);
+  let stack;
+  let brackets;
 
-  if (stack === null) {
+  if (parsed) {
+    stack = parsed[0];
+    brackets = parsed[1];
+  }
+
+  if (!stack) {
     throw new TypeError("Unexpected string");
   }
 
-  const firstPrioritiesRes = firstPrioritiesCalc(stack);
+  if (brackets && brackets.length > 0) {
+    while (brackets.length > 0) {
+      const bracket = brackets.pop();
 
-  if (firstPrioritiesRes.length === 1) {
-    return Number(firstPrioritiesRes[0]);
+      if (bracket) {
+        const bracketStack = stack.slice(bracket.start, bracket.end + 1);
+        const bracketValue = priorityChainExecutor(bracketStack);
+        stack.splice(
+          bracket.start,
+          1 + bracket.end - bracket.start,
+          bracketValue
+        );
+        brackets = recalculateBracketPositions(brackets, bracket);
+      }
+    }
   }
 
-  return secondPrioritiesCalc(firstPrioritiesRes);
+  return priorityChainExecutor(stack);
 };
